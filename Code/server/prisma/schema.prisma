@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int      @id @default(autoincrement())
+  email           String   @unique
+  passwordHash    String
+  name            String?
+  profileImageUrl String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  settings        UserSettings?
+  devices         Device[]
+  readings        EnergyReading[]
+  resetTokens     PasswordResetToken[]
+}
+
+model UserSettings {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  darkMode    Boolean  @default(false)
+  widgetsJson String   @default("[]")
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Device {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  name      String
+  location  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readings  EnergyReading[]
+
+  @@index([userId])
+}
+
+model EnergyReading {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  deviceId  Int
+  watts     Float
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([deviceId, createdAt])
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
