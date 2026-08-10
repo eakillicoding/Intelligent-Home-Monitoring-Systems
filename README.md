@@ -1,4 +1,4 @@
-# Intelligent Home Monitoring System
+# Energy Lens
 
 A smart, easy-to-use web application that monitors power usage across home appliances, interprets energy consumption patterns, and provides clear insights to help reduce overall electricity usage and lower monthly energy bills.
 
